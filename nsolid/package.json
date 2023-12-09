@@ -1,0 +1,17 @@
+{
+  "name": "prometheus-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "nsolid": {
+    "statsd": "127.0.0.1:9125",
+    "statsdBucket": "nsolid.statsd",
+    "env": "dev",
+    "statsdTags": "shortId:${shortId},app:${app},env:${env},hostname:${hostname}"
+  },
+  "scripts": {
+    "start": "nsolid index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

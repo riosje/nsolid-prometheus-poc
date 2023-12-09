@@ -1,0 +1,7 @@
+FROM nodesource/nsolid:latest
+
+WORKDIR /app
+
+ADD . /app
+
+CMD ["nsolid", "index.js"]

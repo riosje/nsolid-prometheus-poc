@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+
+  nsolid-app-1:
+    image: nsolid/app
+    build: ./nsolid
+    depends_on:
+      - statsd-exporter
+    environment:
+    - NSOLID_APPNAME=nsolid-app-1
+    - NSOLID_HOSTNAME=server1
+    - NSOLID_ENV=dev
+    - NSOLID_STATSD_BUCKET=nsolid.statsd
+    - NSOLID_STATSD_TAGS=shortId:$${shortId},app:$${app},env:$${env},hostname:$${hostname}
+    - NSOLID_STATSD=statsd-exporter:9125
+
+  nsolid-app-2:
+    image: nsolid/app
+    build: ./nsolid
+    depends_on:
+      - statsd-exporter
+    environment:
+    - NSOLID_APPNAME=nsolid-app-2
+    - NSOLID_HOSTNAME=server2
+    - NSOLID_ENV=dev
+    - NSOLID_STATSD_BUCKET=nsolid.statsd
+    - NSOLID_STATSD_TAGS=shortId:$${shortId},app:$${app},env:$${env},hostname:$${hostname}
+    - NSOLID_STATSD=statsd-exporter:9125
+
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - '9090:9090'
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - '3000:3000'
+    depends_on:
+      - prometheus
+    volumes:
+      # - grafana:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+
+  statsd-exporter:
+    image: prom/statsd-exporter:v0.26.0
+    command: 
+      - '--log.level=info'
+    ports:
+      - 9102:9102
+      - 9125:9125
+      - 9125:9125/udp
+    depends_on:
+      - prometheus
+volumes:
+  grafana:
